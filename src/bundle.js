@@ -4,8 +4,40 @@ function setup() {
 
 function draw() {
   background(220);
-  ellipse(200, 200, 100, 100);
-}
+const rootMap = {
+  A: 0,
+  "A#": 1,
+  Bb: 1,
+  B: 2,
+  C: 3,
+  "C#": 4,
+  Db: 4,
+  D: 5,
+  "D#": 6,
+  Eb: 6,
+  E: 7,
+  F: 8,
+  "F#": 9,
+  Gb: 9,
+  G: 10,
+  "G#": 11,
+  Ab: 11,
+};
+
+const inverseRootMap = {
+  0: "A",
+  1: ["A#", "Bb"],
+  2: "B",
+  3: "C",
+  4: ["C#", "Db"],
+  5: "D",
+  6: ["D#", "Eb"],
+  7: "E",
+  8: "F",
+  9: ["F#", "Gb"],
+  10: "G",
+  11: ["G#", "Ab"],
+};
 
 const chordsMap = {
   maj: [0, 4, 7],
