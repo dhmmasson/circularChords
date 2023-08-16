@@ -4,6 +4,79 @@ function setup() {
 
 function draw() {
   background(220);
+/**
+ *
+ * @param {number} root
+ * @param {number[]} chordType
+ */
+function drawChord(root, chordType) {
+  // divide the circle into 12 parts
+  // draw a dot at the root
+  // Draw the other dots based on the chord type
+
+  const radius = 100;
+  const centerX = 200;
+  const centerY = 200;
+  const rootRadius = 15;
+  const chordRadius = 8;
+
+  const rootAngle = (root * 2 * PI) / 12;
+  const rootX = centerX + radius * cos(rootAngle);
+  const rootY = centerY + radius * sin(rootAngle);
+
+  fill(0);
+  ellipse(rootX, rootY, rootRadius, rootRadius);
+
+  let previousAngle = rootAngle;
+  chordType.forEach((interval) => {
+    if (interval === 0) {
+      return;
+    }
+    const angle = ((root + interval) * 2 * PI) / 12;
+    const x = centerX + radius * cos(angle);
+    const y = centerY + radius * sin(angle);
+
+    fill(0);
+    ellipse(x, y, chordRadius, chordRadius);
+
+    // draw an arc from previous note to current note
+    // arc(x, y, w, h, start, stop, [mode], [detail])
+    noFill();
+    ellipseMode(RADIUS);
+    arc(centerX, centerY, radius, radius, previousAngle, angle, OPEN);
+    // Add a tick mark every 1/12
+    for (
+      let tickAngle = previousAngle + PI / 6;
+      tickAngle < angle;
+      tickAngle += PI / 6
+    ) {
+      const tickX = centerX + radius * cos(tickAngle);
+      const tickY = centerY + radius * sin(tickAngle);
+      // small line
+      line(
+        tickX,
+        tickY,
+        tickX + 5 * cos(tickAngle),
+        tickY + 5 * sin(tickAngle)
+      );
+    }
+  });
+
+  // Write the name of the root in the circle in white
+  const rootName = inverseRootMap[root];
+  fill(255);
+  textAlign(CENTER, CENTER);
+  text(rootName, rootX, rootY);
+
+  // Write the name of the chord in the center of the circle in white
+  fill(0);
+  let chordName = Object.keys(chordsMap).find(
+    (key) => JSON.stringify(chordsMap[key]) === JSON.stringify(chordType)
+  );
+  chordName = rootName + chordName;
+  text(chordName, centerX, centerY);
+}
+
 const rootMap = {
   A: 0,
   "A#": 1,
