@@ -1,5 +1,23 @@
+let polySynth;
+let audioOn = false;
+let fr = 1 / 2;
 function setup() {
-  createCanvas(400, 400);
+  let canvas = createCanvas(400, 400);
+  canvas.mousePressed(playSynth);
+}
+
+function playSynth() {
+  userStartAudio();
+  polySynth = new p5.PolySynth();
+  polySynth.setADSR(0.01, 0.1, 1.5, 0.1); // attack, decay, sustain, release
+
+  // add some reverb
+  reverb = new p5.Reverb();
+  polySynth.connect(reverb);
+  reverb.process(polySynth, 3, 2);
+
+  audioOn = !audioOn;
+  console.log(audioOn);
 }
 
 function draw() {
@@ -10,7 +28,17 @@ function draw() {
 
   const chordType = chordsMap[Object.keys(chordsMap)[randomChord]];
   drawChord(randomRoot, chordType);
-  frameRate(0.3);
+  if (audioOn) {
+    chordType.forEach((interval) => {
+      polySynth.play(
+        440 * Math.pow(2, (randomRoot + interval) / 12),
+        1,
+        0,
+        0.3
+      );
+    });
+  }
+  frameRate(fr);
 }
 
 /**
