@@ -1,6 +1,13 @@
 let polySynth;
 let audioOn = false;
 let fr = 1 / 2;
+
+const radius = 100;
+const centerX = 200;
+const centerY = 200;
+const rootRadius = 15;
+const chordRadius = 8;
+
 function setup() {
   let canvas = createCanvas(400, 400);
   canvas.mousePressed(playSynth);
@@ -27,6 +34,7 @@ function draw() {
   randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
 
   const chordType = chordsMap[Object.keys(chordsMap)[randomChord]];
+  drawOctave();
   drawChord(randomRoot, chordType);
   if (audioOn) {
     chordType.forEach((interval) => {
@@ -41,6 +49,20 @@ function draw() {
   frameRate(fr);
 }
 
+function drawOctave() {
+  noFill();
+  //dark gray
+  stroke(150);
+  ellipse(centerX, centerY, radius * 2, radius * 2);
+  //light gray
+  stroke(180);
+  ellipse(centerX, centerY, radius * 2 + 40, radius * 2 + 40);
+  //light gray
+  stroke(200);
+  ellipse(centerX, centerY, radius * 2 + 80, radius * 2 + 80);
+  stroke(0);
+  fill(0);
+}
 /**
  *
  * @param {number} root
@@ -51,19 +73,10 @@ function drawChord(root, chordType) {
   // draw a dot at the root
   // Draw the other dots based on the chord type
 
-  const radius = 100;
-  const centerX = 200;
-  const centerY = 200;
-  const rootRadius = 15;
-  const chordRadius = 8;
-
   const rootAngle = (root * 2 * PI) / 12;
   const rootX = centerX + radius * cos(rootAngle);
   const rootY = centerY + radius * sin(rootAngle);
-
-  fill(0);
   ellipse(rootX, rootY, rootRadius, rootRadius);
-
   let previousAngle = rootAngle;
   let previousCoords = [rootX, rootY];
   // compute the tangent on the circle at the root
