@@ -37,30 +37,52 @@ function drawChord(root, chordType) {
   ellipse(rootX, rootY, rootRadius, rootRadius);
 
   let previousAngle = rootAngle;
+  let previousCoords = [rootX, rootY];
+  // compute the tangent on the circle at the root
+  let previousTangent = [-sin(rootAngle), cos(rootAngle)];
+  beginShape();
+  noFill();
+  vertex(rootX, rootY);
+
   chordType.forEach((interval) => {
     if (interval === 0) {
       return;
     }
     const angle = ((root + interval) * 2 * PI) / 12;
-    const x = centerX + radius * cos(angle);
-    const y = centerY + radius * sin(angle);
+    const x = centerX + (radius + Math.floor(interval / 12) * 20) * cos(angle);
+    const y = centerY + (radius + Math.floor(interval / 12) * 20) * sin(angle);
 
     fill(0);
     ellipse(x, y, chordRadius, chordRadius);
 
     // draw an arc from previous note to current note
-    // arc(x, y, w, h, start, stop, [mode], [detail])
     noFill();
-    ellipseMode(RADIUS);
-    arc(centerX, centerY, radius, radius, previousAngle, angle, OPEN);
+
     // Add a tick mark every 1/12
     for (
-      let tickAngle = previousAngle + PI / 6;
-      tickAngle < angle;
+      let tickAngle = previousAngle;
+      tickAngle <= angle + 0.1;
       tickAngle += PI / 6
     ) {
-      const tickX = centerX + radius * cos(tickAngle);
-      const tickY = centerY + radius * sin(tickAngle);
+      const tickX =
+        centerX +
+        (radius + Math.floor((tickAngle - rootAngle) / 2 / PI) * 20) *
+          cos(tickAngle);
+      const tickY =
+        centerY +
+        (radius + Math.floor((tickAngle - rootAngle) / 6) * 20) *
+          sin(tickAngle);
+
+      bezierVertex(
+        previousCoords[0] + (previousTangent[0] * radius) / 5,
+        previousCoords[1] + (previousTangent[1] * radius) / 5,
+        tickX + (sin(tickAngle) * radius) / 5,
+        tickY - (cos(tickAngle) * radius) / 5,
+        tickX,
+        tickY
+      );
+      previousCoords = [tickX, tickY];
+      previousTangent = [-sin(tickAngle), +cos(tickAngle)];
       // small line
       line(
         tickX,
@@ -69,8 +91,11 @@ function drawChord(root, chordType) {
         tickY + 5 * sin(tickAngle)
       );
     }
-  });
 
+    previousAngle = angle;
+    previousTangent = [-sin(angle), +cos(angle)];
+  });
+  endShape();
   // Write the name of the root in the circle in white
   const rootName = inverseRootMap[root];
   fill(255);
