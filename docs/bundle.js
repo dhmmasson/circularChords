@@ -1,6 +1,5 @@
 let polySynth;
 let audioOn = false;
-let fr = 1 / 2;
 
 const radius = 100;
 const centerX = 200;
@@ -8,9 +7,13 @@ const centerY = 200;
 const rootRadius = 15;
 const chordRadius = 8;
 
+let sound;
+let fft;
+
 function setup() {
   let canvas = createCanvas(400, 400);
   canvas.mousePressed(playSynth);
+  fft = new p5.FFT(0.1);
 }
 
 function playSynth() {
@@ -25,18 +28,28 @@ function playSynth() {
 
   audioOn = !audioOn;
   console.log(audioOn);
+
+  if (sound.isPlaying()) {
+    sound.pause();
+  } else {
+    if (music.checked) sound.play();
+  }
+}
+
+function preload() {
+  sound = loadSound("./OldOak.mp3");
 }
 
 function draw() {
   background(220);
 
-  randomRoot = Math.floor(Math.random() * 12);
-  randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
-
-  const chordType = chordsMap[Object.keys(chordsMap)[randomChord]];
   drawOctave();
-  drawChord(randomRoot, chordType);
-  if (audioOn) {
+  drawFFT();
+  if (audioOn && !sound.isPlaying()) {
+    randomRoot = Math.floor(Math.random() * 12);
+    randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
+    const chordType = chordsMap[Object.keys(chordsMap)[randomChord]];
+    drawChord(randomRoot, chordType);
     chordType.forEach((interval) => {
       polySynth.play(
         440 * Math.pow(2, (randomRoot + interval) / 12),
@@ -45,10 +58,31 @@ function draw() {
         0.3
       );
     });
+    fr = 1;
+  } else {
+    fr = 60;
   }
   frameRate(fr);
 }
 
+function drawFFT() {
+  let spectrum = fft.analyze();
+  for (midi = 57; midi < 93; midi++) {
+    let frequency = midiToFreq(midi);
+
+    let amplitude = fft.getEnergy(frequency);
+    // draw the frequency spectrum on the circle
+    let angle = ((midi - 57) * 2 * PI) / 12;
+    let x = centerX + radius * cos(angle);
+    let y = centerY + radius * sin(angle);
+    amplitude -= 155;
+    if (amplitude < 0) amplitude = 0;
+    //let s = map(amplitude, 0, 155, 0, 100);
+    s = amplitude;
+    fill(255, 0, 0);
+    ellipse(x, y, s, s);
+  }
+}
 function drawOctave() {
   noFill();
   //dark gray
