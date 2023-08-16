@@ -13,7 +13,7 @@ let fft;
 function setup() {
   let canvas = createCanvas(400, 400);
   canvas.mousePressed(playSynth);
-  fft = new p5.FFT(0.1);
+  fft = new p5.FFT(0.01);
 }
 
 function playSynth() {
@@ -40,28 +40,30 @@ function preload() {
   sound = loadSound("./OldOak.mp3");
 }
 
+let indexFrame = 0;
+let root = 0;
+let type = "maj";
 function draw() {
   background(220);
 
   drawOctave();
   drawFFT();
   if (audioOn && !sound.isPlaying()) {
-    randomRoot = Math.floor(Math.random() * 12);
-    randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
-    const chordType = chordsMap[Object.keys(chordsMap)[randomChord]];
-    drawChord(randomRoot, chordType);
-    chordType.forEach((interval) => {
-      polySynth.play(
-        440 * Math.pow(2, (randomRoot + interval) / 12),
-        1,
-        0,
-        0.3
-      );
-    });
-    fr = 1;
+    if (indexFrame++ % 60 === 0) {
+      root = Math.floor(Math.random() * 12);
+      randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
+      type = chordsMap[Object.keys(chordsMap)[randomChord]];
+
+      type.forEach((interval) => {
+        let freq = midiToFreq(57 + root + interval);
+        polySynth.play(freq, 1, 0, 0.35);
+      });
+    }
+    drawChord(root, type);
   } else {
     fr = 60;
   }
+
   frameRate(fr);
 }
 
@@ -72,14 +74,18 @@ function drawFFT() {
 
     let amplitude = fft.getEnergy(frequency);
     // draw the frequency spectrum on the circle
-    let angle = ((midi - 57) * 2 * PI) / 12;
-    let x = centerX + radius * cos(angle);
-    let y = centerY + radius * sin(angle);
-    amplitude -= 155;
-    if (amplitude < 0) amplitude = 0;
-    //let s = map(amplitude, 0, 155, 0, 100);
-    s = amplitude;
+    let offset = midi - 57;
+    let angle = (offset * 2 * PI) / 12;
+    let octave = Math.floor(offset / 12);
+    let x = centerX + (radius + octave * 20) * cos(angle);
+    let y = centerY + (radius + octave * 20) * sin(angle);
+    amplitude /= 255;
+    amplitude *= amplitude;
+    let s = map(amplitude, 0, 1, 0, 20);
+
     fill(255, 0, 0);
+    if (amplitude > 0.8) fill(255, 255, 0);
+
     ellipse(x, y, s, s);
   }
 }
