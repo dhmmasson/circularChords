@@ -4,6 +4,15 @@ function setup() {
 
 function draw() {
   background(220);
+
+  randomRoot = Math.floor(Math.random() * 12);
+  randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
+
+  const chordType = chordsMap[Object.keys(chordsMap)[randomChord]];
+  drawChord(randomRoot, chordType);
+  frameRate(0.3);
+}
+
 /**
  *
  * @param {number} root
