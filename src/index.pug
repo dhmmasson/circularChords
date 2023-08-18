@@ -20,5 +20,12 @@ html(lang="en")
                         input#mute(type="checkbox" name="mute")                    
                     label(for="music") Music
                         input#music(type="checkbox" name="music")   
+                fieldset
+                    legend Chord Shape 
+                    label(for="shape") Shape
+                        select#shape(name="shape")
+                            option(value="circle") Circle
+                            option(value="star") Star
+                            option(value="polygon") Polygon 
         script(src="bundle.js")
     
