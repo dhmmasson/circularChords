@@ -27,5 +27,26 @@ html(lang="en")
                             option(value="circle") Circle
                             option(value="star") Star
                             option(value="polygon") Polygon 
+                fieldset 
+                    legend Chords 
+                    label(for="root") Chord
+                        select#root(name="root")
+                            option(value="0") A
+                            option(value="1") A#/Bb
+                            option(value="2") B
+                            option(value="3") C
+                            option(value="4") C#/Db
+                            option(value="5") D
+                            option(value="6") D#/Eb
+                            option(value="7") E
+                            option(value="8") F
+                            option(value="9") F#/Gb
+                            option(value="10") G
+                            option(value="11") G#/Ab
+                        select#chord(name="chord")
+                            option(value="maj") Maj
+                        button Add
+                    label 
+                        textarea#progression(name="chords" cols="30" rows="10") 
         script(src="bundle.js")
     
