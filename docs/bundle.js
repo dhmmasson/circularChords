@@ -12,7 +12,7 @@ let fft;
 let osc;
 
 function setup() {
-  let canvas = createCanvas(400, 400);
+  let canvas = createCanvas(400, 400, document.getElementById("canvas"));
   canvas.mousePressed(playSynth);
   fft = new p5.FFT(0.01);
   osc = new p5.Oscillator();
