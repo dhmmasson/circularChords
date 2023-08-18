@@ -16,6 +16,8 @@ html(lang="en")
             .controls
                 fieldset
                     legend audio                     
+                    label(for="mute") Mute
+                        input#mute(type="checkbox" name="mute")                    
                     label(for="music") Music
                         input#music(type="checkbox" name="music")   
         script(src="bundle.js")
