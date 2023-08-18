@@ -9,11 +9,14 @@ const chordRadius = 8;
 
 let sound;
 let fft;
+let osc;
 
 function setup() {
   let canvas = createCanvas(400, 400);
   canvas.mousePressed(playSynth);
   fft = new p5.FFT(0.01);
+  osc = new p5.Oscillator();
+  osc.setType("sine");
 }
 
 function playSynth() {
@@ -23,8 +26,8 @@ function playSynth() {
 
   // add some reverb
   reverb = new p5.Reverb();
-  polySynth.connect(reverb);
-  reverb.process(polySynth, 3, 2);
+  // polySynth.connect (reverb);
+  // reverb.process(polySynth, 3, 2);
 
   audioOn = !audioOn;
   console.log(audioOn);
@@ -55,8 +58,11 @@ function draw() {
       type = chordsMap[Object.keys(chordsMap)[randomChord]];
 
       type.forEach((interval) => {
-        let freq = midiToFreq(57 + root + interval);
-        polySynth.play(freq, 1, 0, 0.35);
+        let freq = midiToFreq(57 + root);
+        //polySynth.play(freq, 1, 0, 0.35);
+        osc.freq(freq);
+        osc.amp(0.5);
+        osc.start();
       });
     }
     drawChord(root, type);
@@ -72,7 +78,7 @@ function drawFFT() {
   for (midi = 57; midi < 93; midi++) {
     let frequency = midiToFreq(midi);
 
-    let amplitude = fft.getEnergy(frequency);
+    let amplitude = fft.getEnergy(frequency * 0.99, frequency * 1.01);
     // draw the frequency spectrum on the circle
     let offset = midi - 57;
     let angle = (offset * 2 * PI) / 12;
@@ -81,10 +87,11 @@ function drawFFT() {
     let y = centerY + (radius + octave * 20) * sin(angle);
     amplitude /= 255;
     amplitude *= amplitude;
+    amplitude *= amplitude;
     let s = map(amplitude, 0, 1, 0, 20);
 
     fill(255, 0, 0);
-    if (amplitude > 0.8) fill(255, 255, 0);
+    if (amplitude > 0.9) fill(255, 255, 0);
 
     ellipse(x, y, s, s);
   }
