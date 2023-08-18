@@ -11,9 +11,9 @@ html(lang="en")
         header 
             h1 Polar Chords
         main 
-            .visualizer 
+            #visualizer 
                 canvas#canvas 
-            .controls
+            #controls
                 fieldset
                     legend audio                     
                     label(for="mute") Mute
@@ -48,6 +48,4 @@ html(lang="en")
                         button Add
                     label 
                         textarea#progression(name="chords" cols="30" rows="10") 
-
-
         script(src="bundle.js")
