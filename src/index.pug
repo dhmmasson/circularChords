@@ -8,8 +8,15 @@ html(lang="en")
         script(src="p5.sound.min.js")
         title Polar Chords
     body
-        h1 Polar Chords
-        input#music(type="checkbox", name="music")   
-        label(for="music") Music
+        header 
+            h1 Polar Chords
+        main 
+            .visualizer 
+                canvas#canvas 
+            .controls
+                fieldset
+                    legend audio                     
+                    label(for="music") Music
+                        input#music(type="checkbox" name="music")   
         script(src="bundle.js")
     
