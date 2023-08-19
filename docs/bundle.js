@@ -183,7 +183,7 @@ function drawChord(root, chordType) {
  * Draw a star from the center to the root and the other notes
  * the center branch is larger than the others
  *
- * the circle is divided into 12 parts (one for each half step note)
+ * the circle is divided into 12 parts (one for each half step)
  * It draws a small ellipse at the center.
  * For each note, the function draws a triangle from the center ellipse to the note.
  * To do this, it first calculates two points on the circle at the same angle as the note,

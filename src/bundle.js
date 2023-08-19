@@ -6,6 +6,7 @@ let centerX = 200;
 let centerY = 200;
 const rootRadius = 15;
 const chordRadius = 8;
+const octaveRadiusOffset = 5;
 
 let sound;
 let fft;
@@ -106,18 +107,17 @@ function drawFFT() {
   let spectrum = fft.analyze();
   for (midi = 57; midi < 93; midi++) {
     let frequency = midiToFreq(midi);
-
     let amplitude = fft.getEnergy(frequency * 0.99, frequency * 1.01);
     // draw the frequency spectrum on the circle
     let offset = midi - 57;
     let angle = (offset * 2 * PI) / 12;
     let octave = Math.floor(offset / 12);
-    let x = centerX + (radius + octave * 20) * cos(angle);
-    let y = centerY + (radius + octave * 20) * sin(angle);
+    let x = centerX + (radius + octave * octaveRadiusOffset) * cos(angle);
+    let y = centerY + (radius + octave * octaveRadiusOffset) * sin(angle);
     amplitude /= 255;
     amplitude *= amplitude;
     amplitude *= amplitude;
-    let s = map(amplitude, 0, 1, 0, 20);
+    let s = map(amplitude, 0, 1, 0, octaveRadiusOffset);
 
     fill(255, 0, 0);
     if (amplitude > 0.9) fill(255, 255, 0);
