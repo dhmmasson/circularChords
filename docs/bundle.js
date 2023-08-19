@@ -6,8 +6,8 @@ let centerX = 200;
 let centerY = 200;
 const rootRadius = 15;
 const chordRadius = 8;
+const octaveRadiusOffset = 5;
 
-let sound;
 let fft;
 let osc;
 let indexFrame = 0;
@@ -92,7 +92,7 @@ function draw() {
   background(220);
   drawOctave();
   drawFFT();
-  if (indexFrame++ % 60 === 0) {
+  if (indexFrame++ % 240 === 0) {
     root = Math.floor(Math.random() * 12);
     randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
     type = chordsMap[Object.keys(chordsMap)[randomChord]];
@@ -105,18 +105,17 @@ function drawFFT() {
   let spectrum = fft.analyze();
   for (midi = 57; midi < 93; midi++) {
     let frequency = midiToFreq(midi);
-
     let amplitude = fft.getEnergy(frequency * 0.99, frequency * 1.01);
     // draw the frequency spectrum on the circle
     let offset = midi - 57;
     let angle = (offset * 2 * PI) / 12;
     let octave = Math.floor(offset / 12);
-    let x = centerX + (radius + octave * 20) * cos(angle);
-    let y = centerY + (radius + octave * 20) * sin(angle);
+    let x = centerX + (radius + octave * octaveRadiusOffset) * cos(angle);
+    let y = centerY + (radius + octave * octaveRadiusOffset) * sin(angle);
     amplitude /= 255;
     amplitude *= amplitude;
     amplitude *= amplitude;
-    let s = map(amplitude, 0, 1, 0, 20);
+    let s = map(amplitude, 0, 1, 0, octaveRadiusOffset);
 
     fill(255, 0, 0);
     if (amplitude > 0.9) fill(255, 255, 0);
@@ -127,23 +126,127 @@ function drawFFT() {
 function drawOctave() {
   noFill();
   //dark gray
-  stroke(150);
+  stroke(200);
   ellipse(centerX, centerY, radius * 2, radius * 2);
   //light gray
-  stroke(180);
-  ellipse(centerX, centerY, radius * 2 + 40, radius * 2 + 40);
+  stroke(205);
+  ellipse(
+    centerX,
+    centerY,
+    radius * 2 + octaveRadiusOffset * 2,
+    radius * 2 + octaveRadiusOffset * 2
+  );
   //light gray
-  stroke(200);
-  ellipse(centerX, centerY, radius * 2 + 80, radius * 2 + 80);
+  stroke(210);
+  ellipse(
+    centerX,
+    centerY,
+    radius * 2 + octaveRadiusOffset * 4,
+    radius * 2 + octaveRadiusOffset * 4
+  );
   stroke(0);
   fill(0);
 }
+
 /**
  *
  * @param {number} root
  * @param {number[]} chordType
  */
 function drawChord(root, chordType) {
+  //check the option from the #shape select element
+  const shape = document.getElementById("shape").value;
+  //switch on the shape
+  switch (shape) {
+    case "circle":
+      drawCircleChord(root, chordType);
+      break;
+    case "polygon":
+      drawPolygonChord(root, chordType);
+      break;
+    case "star":
+      drawStarChord(root, chordType);
+      break;
+  }
+  // write the name of the chord on the top left
+  const rootName = inverseRootMap[root];
+  let chordName = Object.keys(chordsMap).find(
+    (key) => JSON.stringify(chordsMap[key]) === JSON.stringify(chordType)
+  );
+  chordName = rootName + chordName;
+  fill(0);
+  textAlign(LEFT, TOP);
+  text(chordName, Math.max(0, centerX - 200), Math.max(0, centerY - 200));
+}
+
+/**
+ * Draw a star from the center to the root and the other notes
+ * the center branch is larger than the others
+ *
+ * the circle is divided into 12 parts (one for each half step note)
+ * It draws a small ellipse at the center.
+ * For each note, the function draws a triangle from the center ellipse to the note.
+ * To do this, it first calculates two points on the circle at the same angle as the note,
+ * but offset by 1/24 or 1/12 of a circle.
+ * It then draws a triangle from the center ellipse to the note
+ * @param {number} root
+ * @param {number[]} chordType
+ */
+function drawStarChord(root, chordType) {
+  ellipse(centerX, centerY, rootRadius, rootRadius);
+
+  chordType.forEach((interval, index) => {
+    angle = ((root + interval) * 2 * PI) / 12;
+    const x = centerX + radius * cos(angle);
+    const y = centerY + radius * sin(angle);
+    // draw a triangle from the center ellipse to the note
+    // find two points on the circle at the same angle as the note +/- 1/24 of a circle
+    offsetAngle = index ? PI / 24 : PI / 12;
+    const x1 = centerX + (rootRadius / 2) * cos(angle - offsetAngle);
+    const y1 = centerY + (rootRadius / 2) * sin(angle - offsetAngle);
+    const x2 = centerX + (rootRadius / 2) * cos(angle + offsetAngle);
+    const y2 = centerY + (rootRadius / 2) * sin(angle + offsetAngle);
+    // draw the triangle
+    triangle(x1, y1, x, y, x2, y2);
+  });
+}
+
+/**
+ *
+ * draw triangles (center, note, next note) for each note in the chord
+ * shade them with a color based on the note
+ *
+ * @param {*} root
+ * @param {*} chordType
+ */
+function drawPolygonChord(root, chordType) {
+  inte = chordType
+    .map((interval) => root + (interval % 12))
+    .sort((a, b) => a - b);
+  previousAngle = (inte[0] * 2 * PI) / 12;
+  inte.push(inte[0]);
+  inte
+    .slice(1)
+
+    .forEach((interval, index) => {
+      angle = (interval * 2 * PI) / 12;
+      const previousX = centerX + radius * cos(previousAngle);
+      const previousY = centerY + radius * sin(previousAngle);
+      const x = centerX + radius * cos(angle);
+      const y = centerY + radius * sin(angle);
+      previousAngle = angle;
+      stroke(0);
+      // color through the rainbow based on the index
+      // color mode hsb
+      colorMode(HSB, 100);
+      fill((index * 100) / chordType.length, 100, 100);
+      // fill yellow and shade based on the interval
+      fill(10, 50, 100 - ((2 + interval) % 12) * 6 + 4);
+      triangle(centerX, centerY, previousX, previousY, x, y);
+    });
+}
+
+function drawCircleChord(root, chordType) {
   // divide the circle into 12 parts
   // draw a dot at the root
   // Draw the other dots based on the chord type
@@ -151,67 +254,59 @@ function drawChord(root, chordType) {
   const rootAngle = (root * 2 * PI) / 12;
   const rootX = centerX + radius * cos(rootAngle);
   const rootY = centerY + radius * sin(rootAngle);
-  ellipse(rootX, rootY, rootRadius, rootRadius);
-  let previousAngle = rootAngle;
-  let previousCoords = [rootX, rootY];
-  // compute the tangent on the circle at the root
-  let previousTangent = [-sin(rootAngle), cos(rootAngle)];
-  beginShape();
-  noFill();
-  vertex(rootX, rootY);
 
-  chordType.forEach((interval) => {
+  let previousAngle = rootAngle;
+  // draw arcs
+  chordType.forEach((interval, index) => {
     if (interval === 0) {
       return;
     }
     const angle = ((root + interval) * 2 * PI) / 12;
-    const x = centerX + (radius + Math.floor(interval / 12) * 20) * cos(angle);
-    const y = centerY + (radius + Math.floor(interval / 12) * 20) * sin(angle);
-
-    fill(0);
-    ellipse(x, y, chordRadius, chordRadius);
-
-    // draw an arc from previous note to current note
+    const circleRadius =
+      radius + Math.floor(interval / 12) * octaveRadiusOffset;
+    const offset = +Math.floor(interval / 12) * octaveRadiusOffset;
+    const x = centerX + circleRadius * cos(angle);
+    const y = centerY + circleRadius * sin(angle);
     noFill();
-
+    arc(
+      centerX,
+      centerY,
+      2 * (radius + offset),
+      2 * (radius + offset),
+      rootAngle,
+      angle % (2 * PI)
+    );
     // Add a tick mark every 1/12
     for (
       let tickAngle = previousAngle;
       tickAngle <= angle + 0.1;
       tickAngle += PI / 6
     ) {
-      const tickX =
-        centerX +
-        (radius + Math.floor((tickAngle - rootAngle) / 2 / PI) * 20) *
-          cos(tickAngle);
-      const tickY =
-        centerY +
-        (radius + Math.floor((tickAngle - rootAngle) / 6) * 20) *
-          sin(tickAngle);
+      const tickOffset = octaveRadiusOffset / 2;
+      const tickX = centerX + circleRadius * cos(tickAngle);
+      const tickY = centerY + circleRadius * sin(tickAngle);
 
-      bezierVertex(
-        previousCoords[0] + (previousTangent[0] * radius) / 5,
-        previousCoords[1] + (previousTangent[1] * radius) / 5,
-        tickX + (sin(tickAngle) * radius) / 5,
-        tickY - (cos(tickAngle) * radius) / 5,
-        tickX,
-        tickY
-      );
-      previousCoords = [tickX, tickY];
-      previousTangent = [-sin(tickAngle), +cos(tickAngle)];
-      // small line
       line(
         tickX,
         tickY,
-        tickX + 5 * cos(tickAngle),
-        tickY + 5 * sin(tickAngle)
+        tickX + tickOffset * cos(tickAngle),
+        tickY + tickOffset * sin(tickAngle)
       );
     }
-
     previousAngle = angle;
-    previousTangent = [-sin(angle), +cos(angle)];
   });
-  endShape();
+
+  chordType.forEach((interval, index) => {
+    const angle = ((root + interval) * 2 * PI) / 12;
+    const nodeRadius = index ? chordRadius : rootRadius;
+    const circleRadius =
+      radius + Math.floor(interval / 12) * octaveRadiusOffset;
+    const x = centerX + circleRadius * cos(angle);
+    const y = centerY + circleRadius * sin(angle);
+    fill(0);
+    ellipse(x, y, nodeRadius, nodeRadius);
+  });
+
   // Write the name of the root in the circle in white
   const rootName = inverseRootMap[root];
   fill(255);

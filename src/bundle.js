@@ -145,6 +145,62 @@ function drawOctave() {
  * @param {number[]} chordType
  */
 function drawChord(root, chordType) {
+  //check the option from the #shape select element
+  const shape = document.getElementById("shape").value;
+  //switch on the shape
+  switch (shape) {
+    case "circle":
+      drawCircleChord(root, chordType);
+      break;
+    case "polygon":
+      drawPolygonChord(root, chordType);
+      break;
+    case "star":
+      drawStarChord(root, chordType);
+      break;
+  }
+  // write the name of the chord on the top left
+  const rootName = inverseRootMap[root];
+  let chordName = Object.keys(chordsMap).find(
+    (key) => JSON.stringify(chordsMap[key]) === JSON.stringify(chordType)
+  );
+  chordName = rootName + chordName;
+  fill(0);
+  textAlign(LEFT, TOP);
+  text(chordName, Math.max(0, centerX - 200), Math.max(0, centerY - 200));
+}
+
+/**
+ * Draw a star from the center to the root and the other notes
+ * the center branch is larger than the others
+ *
+ * the circle is divided into 12 parts (one for each half step note)
+ * It draws a small ellipse at the center.
+ * For each note, the function draws a triangle from the center ellipse to the note.
+ * To do this, it first calculates two points on the circle at the same angle as the note,
+ * but offset by 1/24 or 1/12 of a circle.
+ * It then draws a triangle from the center ellipse to the note
+ * @param {number} root
+ * @param {number[]} chordType
+ */
+function drawStarChord(root, chordType) {
+  ellipse(centerX, centerY, rootRadius, rootRadius);
+
+  chordType.forEach((interval, index) => {
+    angle = ((root + interval) * 2 * PI) / 12;
+    const x = centerX + radius * cos(angle);
+    const y = centerY + radius * sin(angle);
+    // draw a triangle from the center ellipse to the note
+    // find two points on the circle at the same angle as the note +/- 1/24 of a circle
+    offsetAngle = index ? PI / 24 : PI / 12;
+    const x1 = centerX + (rootRadius / 2) * cos(angle - offsetAngle);
+    const y1 = centerY + (rootRadius / 2) * sin(angle - offsetAngle);
+    const x2 = centerX + (rootRadius / 2) * cos(angle + offsetAngle);
+    const y2 = centerY + (rootRadius / 2) * sin(angle + offsetAngle);
+    // draw the triangle
+    triangle(x1, y1, x, y, x2, y2);
+  });
+}
   // divide the circle into 12 parts
   // draw a dot at the root
   // Draw the other dots based on the chord type
