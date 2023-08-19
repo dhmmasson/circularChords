@@ -128,17 +128,28 @@ function drawFFT() {
 function drawOctave() {
   noFill();
   //dark gray
-  stroke(150);
+  stroke(200);
   ellipse(centerX, centerY, radius * 2, radius * 2);
   //light gray
-  stroke(180);
-  ellipse(centerX, centerY, radius * 2 + 40, radius * 2 + 40);
+  stroke(205);
+  ellipse(
+    centerX,
+    centerY,
+    radius * 2 + octaveRadiusOffset * 2,
+    radius * 2 + octaveRadiusOffset * 2
+  );
   //light gray
-  stroke(200);
-  ellipse(centerX, centerY, radius * 2 + 80, radius * 2 + 80);
+  stroke(210);
+  ellipse(
+    centerX,
+    centerY,
+    radius * 2 + octaveRadiusOffset * 4,
+    radius * 2 + octaveRadiusOffset * 4
+  );
   stroke(0);
   fill(0);
 }
+
 /**
  *
  * @param {number} root
