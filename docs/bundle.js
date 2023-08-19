@@ -2,8 +2,8 @@ let polySynth;
 let audioOn = false;
 
 const radius = 100;
-const centerX = 200;
-const centerY = 200;
+let centerX = 200;
+let centerY = 200;
 const rootRadius = 15;
 const chordRadius = 8;
 
@@ -13,10 +13,31 @@ let osc;
 
 function setup() {
   let canvas = createCanvas(400, 400, document.getElementById("canvas"));
+  windowResized();
   canvas.mousePressed(playSynth);
   fft = new p5.FFT(0.01);
   osc = new p5.Oscillator();
   osc.setType("sine");
+}
+
+function windowResized() {
+  //Parent div of the canvas
+  const visualizer = document.getElementById("visualizer");
+  // small canvas so that flexbox can resize it
+  resizeCanvas(100, 100);
+  setTimeout(resize, 1);
+}
+
+function resize() {
+  // Get the width and height of the visualizer element
+  const width = visualizer.clientWidth;
+  const height = Math.min(width, visualizer.clientHeight);
+
+  // Resize the canvas to match the visualizer element's size
+  //resizeCanvas(width, height);
+  centerX = width / 2;
+  centerY = height / 2;
+  resizeCanvas(width, height);
 }
 
 function playSynth() {
