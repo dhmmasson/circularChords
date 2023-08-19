@@ -8,6 +8,7 @@ const rootRadius = 15;
 const chordRadius = 8;
 const octaveRadiusOffset = 5;
 
+let sound;
 let fft;
 let osc;
 let indexFrame = 0;
@@ -92,7 +93,8 @@ function draw() {
   background(220);
   drawOctave();
   drawFFT();
-  if (indexFrame++ % 240 === 0) {
+
+  if (indexFrame++ % 60 === 0) {
     root = Math.floor(Math.random() * 12);
     randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
     type = chordsMap[Object.keys(chordsMap)[randomChord]];
@@ -183,7 +185,7 @@ function drawChord(root, chordType) {
  * Draw a star from the center to the root and the other notes
  * the center branch is larger than the others
  *
- * the circle is divided into 12 parts (one for each half step)
+ * the circle is divided into 12 parts (one for each half step note)
  * It draws a small ellipse at the center.
  * For each note, the function draws a triangle from the center ellipse to the note.
  * To do this, it first calculates two points on the circle at the same angle as the note,
