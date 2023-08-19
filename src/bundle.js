@@ -201,6 +201,41 @@ function drawStarChord(root, chordType) {
     triangle(x1, y1, x, y, x2, y2);
   });
 }
+
+/**
+ *
+ * draw triangles (center, note, next note) for each note in the chord
+ * shade them with a color based on the note
+ *
+ * @param {*} root
+ * @param {*} chordType
+ */
+function drawPolygonChord(root, chordType) {
+  inte = chordType
+    .map((interval) => root + (interval % 12))
+    .sort((a, b) => a - b);
+  previousAngle = (inte[0] * 2 * PI) / 12;
+  inte.push(inte[0]);
+  inte
+    .slice(1)
+
+    .forEach((interval, index) => {
+      angle = (interval * 2 * PI) / 12;
+      const previousX = centerX + radius * cos(previousAngle);
+      const previousY = centerY + radius * sin(previousAngle);
+      const x = centerX + radius * cos(angle);
+      const y = centerY + radius * sin(angle);
+      previousAngle = angle;
+      stroke(0);
+      // color through the rainbow based on the index
+      // color mode hsb
+      colorMode(HSB, 100);
+      fill((index * 100) / chordType.length, 100, 100);
+      // fill yellow and shade based on the interval
+      fill(10, 50, 100 - ((2 + interval) % 12) * 6 + 4);
+      triangle(centerX, centerY, previousX, previousY, x, y);
+    });
+}
   // divide the circle into 12 parts
   // draw a dot at the root
   // Draw the other dots based on the chord type
