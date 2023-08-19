@@ -10,20 +10,26 @@ const chordRadius = 8;
 let sound;
 let fft;
 let osc;
+let indexFrame = 0;
+let root = 0;
+let type = "maj";
+let canvas = null;
 
 function setup() {
-  let canvas = createCanvas(400, 400, document.getElementById("canvas"));
+  canvas = createCanvas(400, 400, document.getElementById("canvas"));
   windowResized();
-  canvas.mousePressed(playSynth);
-  fft = new p5.FFT(0.01);
-  osc = new p5.Oscillator();
-  osc.setType("sine");
+  createInstruments();
+  // Add a text label to start the sound
+  mute.checked = true;
+  mute.addEventListener("click", startAudio);
 }
 
 function windowResized() {
   //Parent div of the canvas
   const visualizer = document.getElementById("visualizer");
   // small canvas so that flexbox can resize it
+  //make the canvas float
+
   resizeCanvas(100, 100);
   setTimeout(resize, 1);
 }
@@ -32,7 +38,6 @@ function resize() {
   // Get the width and height of the visualizer element
   const width = visualizer.clientWidth;
   const height = Math.min(width, visualizer.clientHeight);
-
   // Resize the canvas to match the visualizer element's size
   //resizeCanvas(width, height);
   centerX = width / 2;
@@ -40,19 +45,17 @@ function resize() {
   resizeCanvas(width, height);
 }
 
-function playSynth() {
+function startAudio() {
   userStartAudio();
-  polySynth = new p5.PolySynth();
-  polySynth.setADSR(0.01, 0.1, 1.5, 0.1); // attack, decay, sustain, release
+  audioOn = true;
+  mute.checked = false;
+  mute.removeEventListener("click", startAudio);
+  mute.addEventListener("click", muteAudio);
+}
 
-  // add some reverb
-  reverb = new p5.Reverb();
-  // polySynth.connect (reverb);
-  // reverb.process(polySynth, 3, 2);
-
-  audioOn = !audioOn;
-  console.log(audioOn);
-
+function muteAudio() {
+  audioOn = !mute.checked;
+  osc.stop();
   if (sound.isPlaying()) {
     sound.pause();
   } else {
@@ -60,38 +63,43 @@ function playSynth() {
   }
 }
 
+function createInstruments() {
+  // create a synth and connect it to the master output (your speakers)
+  polySynth = new p5.PolySynth();
+  polySynth.setADSR(0.01, 0.1, 1.5, 0.1); // attack, decay, sustain, release
+  fft = new p5.FFT(0.01);
+  osc = new p5.Oscillator();
+  osc.setType("sine");
+}
+
 function preload() {
   sound = loadSound("./OldOak.mp3");
 }
 
-let indexFrame = 0;
-let root = 0;
-let type = "maj";
+function playChord(root, type) {
+  if (audioOn && !sound.isPlaying()) {
+    type.forEach((interval) => {
+      let freq = midiToFreq(57 + root);
+      //polySynth.play(freq, 1, 0, 0.35);
+      osc.freq(freq);
+      osc.amp(0.5);
+      osc.start();
+    });
+  }
+}
+
 function draw() {
   background(220);
-
   drawOctave();
   drawFFT();
-  if (audioOn && !sound.isPlaying()) {
-    if (indexFrame++ % 60 === 0) {
-      root = Math.floor(Math.random() * 12);
-      randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
-      type = chordsMap[Object.keys(chordsMap)[randomChord]];
 
-      type.forEach((interval) => {
-        let freq = midiToFreq(57 + root);
-        //polySynth.play(freq, 1, 0, 0.35);
-        osc.freq(freq);
-        osc.amp(0.5);
-        osc.start();
-      });
-    }
-    drawChord(root, type);
-  } else {
-    fr = 60;
+  if (indexFrame++ % 60 === 0) {
+    root = Math.floor(Math.random() * 12);
+    randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
+    type = chordsMap[Object.keys(chordsMap)[randomChord]];
+    playChord(root, type);
   }
-
-  frameRate(fr);
+  drawChord(root, type);
 }
 
 function drawFFT() {
