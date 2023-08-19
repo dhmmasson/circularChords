@@ -23,6 +23,30 @@ function setup() {
   // Add a text label to start the sound
   mute.checked = true;
   mute.addEventListener("click", startAudio);
+
+  //fill the chord select element with the chord types
+  const chordSelect = document.getElementById("chord");
+  //empty the select element
+  chordSelect.innerHTML = "";
+  Object.keys(chordsMap).forEach((chord) => {
+    const option = document.createElement("option");
+    option.value = chord;
+    option.text = chord;
+    chordSelect.appendChild(option);
+  });
+  // fill the root select element with the root notes
+  const rootSelect = document.getElementById("root");
+  //empty the select element
+  rootSelect.innerHTML = "";
+  Object.keys(rootMap).forEach((root) => {
+    const option = document.createElement("option");
+    option.value = root;
+    option.text = root;
+    rootSelect.appendChild(option);
+  });
+  // check the random chord checkbox
+  document.getElementById("random").addEventListener("click", checkRandomChord);
+  checkRandomChord();
 }
 
 function windowResized() {
@@ -94,10 +118,25 @@ function draw() {
   drawOctave();
   drawFFT();
 
+  // check if root and chord have changed
+  if (
+    !document.getElementById("random").checked &&
+    (rootMap[document.getElementById("root").value] !== root ||
+      chordsMap[document.getElementById("chord").value] !== type)
+  ) {
+    indexFrame = 0;
+  }
+
   if (indexFrame++ % 60 === 0) {
-    root = Math.floor(Math.random() * 12);
-    randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
-    type = chordsMap[Object.keys(chordsMap)[randomChord]];
+    // get the root from the #root select element
+    // get the chord from the #chord select element
+    root = rootMap[document.getElementById("root").value];
+    type = chordsMap[document.getElementById("chord").value];
+    if (document.getElementById("random").checked) {
+      root = Math.floor(Math.random() * 12);
+      randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
+      type = chordsMap[Object.keys(chordsMap)[randomChord]];
+    }
     playChord(root, type);
   }
   drawChord(root, type);
@@ -148,6 +187,16 @@ function drawOctave() {
   );
   stroke(0);
   fill(0);
+}
+
+function checkRandomChord() {
+  if (document.getElementById("random").checked) {
+    document.getElementById("chord").disabled = true;
+    document.getElementById("root").disabled = true;
+  } else {
+    document.getElementById("chord").disabled = false;
+    document.getElementById("root").disabled = false;
+  }
 }
 
 /**

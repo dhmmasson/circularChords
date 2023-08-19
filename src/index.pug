@@ -29,6 +29,9 @@ html(lang="en")
                             option(value="polygon") Polygon 
                 fieldset 
                     legend Chords 
+                    label Random
+                        input#random(type="checkbox" name="random" checked)
+                    br  
                     label(for="root") Chord
                         select#root(name="root")
                             option(value="0") A
@@ -44,8 +47,7 @@ html(lang="en")
                             option(value="10") G
                             option(value="11") G#/Ab
                         select#chord(name="chord")
-                            option(value="maj") Maj
-                        button Add
+                            option(value="maj") Maj                        
                     label 
                         textarea#progression(name="chords" cols="30" rows="10") 
         script(src="bundle.js")
