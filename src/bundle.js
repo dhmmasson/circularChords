@@ -239,9 +239,14 @@ const AngleModes = {
 };
 
 /**
+ * @typedef {number} Angle
+ */
+
+/**
  * Take a note and return the angle on the circle
  * @param {*} note
  * @param {AngleMode} [mode] default to the mode selected on the UI
+ * @returns {Angle}
  */
 function noteToAngle(note, mode) {
   if (mode === undefined)
@@ -269,6 +274,17 @@ function noteToAngle(note, mode) {
  */
 function noteToCoordinates(note, radius, center = canvasCenter, mode) {
   const angle = noteToAngle(note, mode);
+  return angleToCoordinate(angle, radius, center);
+}
+
+/**
+ *
+ * @param {Angle} angle the radian angle
+ * @param {number} [radius=200] radius of the circle
+ * @param {Coordinate} [center=CanvasCenter] the center the circle (default to the center of the canvas)]
+ * @returns {Coordinate}
+ */
+function angleToCoordinate(angle, radius, center = canvasCenter) {
   const x = center.x + radius * cos(angle);
   const y = center.y + radius * sin(angle);
   return { x, y };
