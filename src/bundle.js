@@ -252,7 +252,7 @@ function noteToAngle(note, mode) {
   if (mode === undefined)
     mode = AngleModes[coordinateSystem.value] || AngleModes.Chromatic;
   let angle = 0;
-  const circleOfFifths = [0, 5, 10, 3, 8, 1, 6, 11, 4, 9, 2, 7];
+  const circleOfFifths = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5]; // [0, 5, 10, 3, 8, 1, 6, 11, 4, 9, 2, 7];
   switch (mode) {
     case AngleModes.Chromatic:
       angle = ((note % 12) * PI) / 6;
