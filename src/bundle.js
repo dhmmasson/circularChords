@@ -379,22 +379,21 @@ function drawCircleChord(root, chordType) {
   // draw a dot at the root
   // Draw the other dots based on the chord type
 
-  const rootAngle = (root * 2 * PI) / 12;
-  const rootX = canvasCenter.x + radius * cos(rootAngle);
-  const rootY = canvasCenter.y + radius * sin(rootAngle);
+  const rootAngle = noteToAngle(root);
+  const rootCoordinate = noteToCoordinates(root, radius);
 
   let previousAngle = rootAngle;
   // draw arcs
-  chordType.forEach((interval, index) => {
+  chordType.forEach((interval) => {
     if (interval === 0) {
       return;
     }
-    const angle = ((root + interval) * 2 * PI) / 12;
+
+    const angle = noteToAngle(root + interval);
     const circleRadius =
       radius + Math.floor(interval / 12) * octaveRadiusOffset;
     const offset = +Math.floor(interval / 12) * octaveRadiusOffset;
-    const x = canvasCenter.x + circleRadius * cos(angle);
-    const y = canvasCenter.y + circleRadius * sin(angle);
+
     noFill();
     arc(
       canvasCenter.x,
@@ -425,21 +424,19 @@ function drawCircleChord(root, chordType) {
   });
 
   chordType.forEach((interval, index) => {
-    const angle = ((root + interval) * 2 * PI) / 12;
     const nodeRadius = index ? chordRadius : rootRadius;
     const circleRadius =
       radius + Math.floor(interval / 12) * octaveRadiusOffset;
-    const x = canvasCenter.x + circleRadius * cos(angle);
-    const y = canvasCenter.y + circleRadius * sin(angle);
+    const coordinate = noteToCoordinates(root + interval, circleRadius);
     fill(0);
-    ellipse(x, y, nodeRadius, nodeRadius);
+    ellipse(coordinate.x, coordinate.y, nodeRadius, nodeRadius);
   });
 
   // Write the name of the root in the circle in white
   const rootName = inverseRootMap[root];
   fill(255);
   textAlign(CENTER, CENTER);
-  text(rootName, rootX, rootY);
+  text(rootName, rootCoordinate.x, rootCoordinate.y);
 
   // Write the name of the chord in the center of the circle in white
   fill(0);
