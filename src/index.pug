@@ -22,11 +22,15 @@ html(lang="en")
                         input#music(type="checkbox" name="music")   
                 fieldset
                     legend Chord Shape 
-                    label(for="shape") Shape
-                        select#shape(name="shape")
-                            option(value="star") Star
-                            option(value="circle") Circle                            
-                            option(value="polygon") Polygon 
+
+                    label Star
+                        input#star(type="checkbox" name="Star", checked)
+                    label Circle
+                        input#circle(type="checkbox" name="Circle")
+                    label Polygon 
+                        input#polygon(type="checkbox" name="Star")
+                fieldset
+                    legend Chord-inate Systems
                     label(for="system") Coordinate System
                         select#coordinateSystem(name="coordinateSystem")
                             option(value="Chromatic") Chromatic

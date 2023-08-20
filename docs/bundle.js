@@ -297,19 +297,12 @@ function angleToCoordinate(angle, radius, center = canvasCenter) {
  */
 function drawChord(root, chordType) {
   //check the option from the #shape select element
-  const shape = document.getElementById("shape").value;
-  //switch on the shape
-  switch (shape) {
-    case "circle":
-      drawCircleChord(root, chordType);
-      break;
-    case "polygon":
-      drawPolygonChord(root, chordType);
-      break;
-    case "star":
-      drawStarChord(root, chordType);
-      break;
-  }
+
+  if (document.getElementById("polygon").checked)
+    drawPolygonChord(root, chordType);
+  if (document.getElementById("star").checked) drawStarChord(root, chordType);
+  if (document.getElementById("circle").checked)
+    drawCircleChord(root, chordType);
   // write the name of the chord on the top left
   const rootName = inverseRootMap[root];
   let chordName = Object.keys(chordsMap).find(
