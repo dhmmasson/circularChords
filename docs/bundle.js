@@ -54,7 +54,9 @@ function setup() {
     rootSelect.appendChild(option);
   });
   // check the random chord checkbox
-  document.getElementById("random").addEventListener("click", checkRandomChord);
+  document
+    .getElementById("randomChord")
+    .addEventListener("click", checkRandomChord);
   checkRandomChord();
 }
 
@@ -125,11 +127,12 @@ function playChord(root, type) {
 function draw() {
   background(220);
   drawOctave();
+  drawNoteNames();
   drawFFT();
 
   // check if root and chord have changed
   if (
-    !document.getElementById("random").checked &&
+    !document.getElementById("randomChord").checked &&
     (rootMap[document.getElementById("root").value] !== root ||
       chordsMap[document.getElementById("chord").value] !== type)
   ) {
@@ -141,7 +144,7 @@ function draw() {
     // get the chord from the #chord select element
     root = rootMap[document.getElementById("root").value];
     type = chordsMap[document.getElementById("chord").value];
-    if (document.getElementById("random").checked) {
+    if (document.getElementById("randomChord").checked) {
       root = Math.floor(Math.random() * 12);
       randomChord = Math.floor(Math.random() * Object.keys(chordsMap).length);
       type = chordsMap[Object.keys(chordsMap)[randomChord]];
@@ -200,8 +203,18 @@ function drawOctave() {
   fill(0);
 }
 
+function drawNoteNames() {
+  for (note in Object.values(inverseRootMap)) {
+    const coordinate = noteToCoordinates(note, radius + octaveRadiusOffset * 8);
+    const noteName = inverseRootMap[note];
+    fill(0);
+    textAlign(CENTER, CENTER);
+    text(noteName, Math.max(0, coordinate.x), Math.max(0, coordinate.y));
+  }
+}
+
 function checkRandomChord() {
-  if (document.getElementById("random").checked) {
+  if (document.getElementById("randomChord").checked) {
     document.getElementById("chord").disabled = true;
     document.getElementById("root").disabled = true;
   } else {
