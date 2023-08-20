@@ -24,9 +24,14 @@ html(lang="en")
                     legend Chord Shape 
                     label(for="shape") Shape
                         select#shape(name="shape")
-                            option(value="circle") Circle
                             option(value="star") Star
+                            option(value="circle") Circle                            
                             option(value="polygon") Polygon 
+                    label(for="system") Coordinate System
+                        select#coordinateSystem(name="coordinateSystem")
+                            option(value="Chromatic") Chromatic
+                            option(value="Fifth") Fifth                            
+
                 fieldset 
                     legend Chords 
                     label Random

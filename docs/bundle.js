@@ -345,10 +345,10 @@ function drawPolygonChord(root, chordType) {
 
     .forEach((interval, index) => {
       angle = (interval * 2 * PI) / 12;
-      const previousX = canvasCenterx + radius * cos(previousAngle);
-      const previousY = canvasCentery + radius * sin(previousAngle);
-      const x = canvasCenterx + radius * cos(angle);
-      const y = canvasCentery + radius * sin(angle);
+      const previousX = canvasCenter.x + radius * cos(previousAngle);
+      const previousY = canvasCenter.y + radius * sin(previousAngle);
+      const x = canvasCenter.x + radius * cos(angle);
+      const y = canvasCenter.y + radius * sin(angle);
       previousAngle = angle;
       stroke(0);
       // color through the rainbow based on the index
@@ -357,7 +357,7 @@ function drawPolygonChord(root, chordType) {
       fill((index * 100) / chordType.length, 100, 100);
       // fill yellow and shade based on the interval
       fill(10, 50, 100 - ((2 + interval) % 12) * 6 + 4);
-      triangle(canvasCenterx, canvasCentery, previousX, previousY, x, y);
+      triangle(canvasCenter.x, canvasCenter.y, previousX, previousY, x, y);
     });
 }
 

@@ -211,6 +211,57 @@ function checkRandomChord() {
 }
 
 /**
+ * How to represent the note on the circle, Chromatic or Fifth
+ * @typedef {1|5} AngleMode
+ */
+
+/**
+ * Represent the angles modes
+ * @readonly
+ * @enum {AngleMode}
+ */
+const AngleModes = {
+  Chromatic: 1,
+  Fifth: 5,
+};
+
+/**
+ * Take a note and return the angle on the circle
+ * @param {*} note
+ * @param {AngleMode} [mode] default to the mode selected on the UI
+ */
+function noteToAngle(note, mode) {
+  if (mode === undefined)
+    mode = AngleModes[coordinateSystem.value] || AngleModes.Chromatic;
+  let angle = 0;
+  const circleOfFifths = [0, 5, 10, 3, 8, 1, 6, 11, 4, 9, 2, 7];
+  switch (mode) {
+    case AngleModes.Chromatic:
+      angle = ((note % 12) * PI) / 6;
+      break;
+    case AngleModes.Fifth:
+      angle = (circleOfFifths[note % 12] * PI) / 6;
+      break;
+  }
+  return angle;
+}
+
+/**
+ *
+ * @param {number} note the Midi representation of the note
+ * @param {number} [radius=200] radius of the circle
+ * @param {Coordinate} [center=CanvasCenter] the center the circle (default to the center of the canvas)]
+ * @param {AngleMode} [mode] Coordinate Mode [default to UI or Chromatic]
+ * @returns {Coordinate}
+ */
+function noteToCoordinates(note, radius, center = canvasCenter, mode) {
+  const angle = noteToAngle(note, mode);
+  const x = center.x + radius * cos(angle);
+  const y = center.y + radius * sin(angle);
+  return { x, y };
+}
+
+/**
  *
  * @param {number} root
  * @param {number[]} chordType
@@ -260,11 +311,9 @@ function drawChord(root, chordType) {
  */
 function drawStarChord(root, chordType) {
   ellipse(canvasCenter.x, canvasCenter.y, rootRadius, rootRadius);
-
   chordType.forEach((interval, index) => {
-    angle = ((root + interval) * 2 * PI) / 12;
-    const x = canvasCenter.x + radius * cos(angle);
-    const y = canvasCenter.y + radius * sin(angle);
+    const noteCoordinate = noteToCoordinates(root + interval, radius);
+    const angle = noteToAngle(root + interval);
     // draw a triangle from the center ellipse to the note
     // find two points on the circle at the same angle as the note +/- 1/24 of a circle
     offsetAngle = index ? PI / 24 : PI / 12;
@@ -273,7 +322,7 @@ function drawStarChord(root, chordType) {
     const x2 = canvasCenter.x + (rootRadius / 2) * cos(angle + offsetAngle);
     const y2 = canvasCenter.y + (rootRadius / 2) * sin(angle + offsetAngle);
     // draw the triangle
-    triangle(x1, y1, x, y, x2, y2);
+    triangle(x1, y1, noteCoordinate.x, noteCoordinate.y, x2, y2);
   });
 }
 
