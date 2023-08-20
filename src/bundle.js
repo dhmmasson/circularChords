@@ -127,6 +127,7 @@ function playChord(root, type) {
 function draw() {
   background(220);
   drawOctave();
+  drawNoteNames();
   drawFFT();
 
   // check if root and chord have changed
@@ -200,6 +201,16 @@ function drawOctave() {
   );
   stroke(0);
   fill(0);
+}
+
+function drawNoteNames() {
+  for (note in Object.values(inverseRootMap)) {
+    const coordinate = noteToCoordinates(note, radius + octaveRadiusOffset * 8);
+    const noteName = inverseRootMap[note];
+    fill(0);
+    textAlign(CENTER, CENTER);
+    text(noteName, Math.max(0, coordinate.x), Math.max(0, coordinate.y));
+  }
 }
 
 function checkRandomChord() {
