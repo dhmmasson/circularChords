@@ -2,8 +2,17 @@ let polySynth;
 let audioOn = false;
 
 const radius = 100;
-let centerX = 200;
-let centerY = 200;
+/**
+ * Represent the coordinate on screen
+ * @typedef Coordinate
+ * @type {Object}
+ * @property {number} x the x coordinate
+ * @property {number} y the y coordinate
+ */
+
+/** @type {Coordinate} */
+let canvasCenter = { x: 200, y: 200 };
+
 const rootRadius = 15;
 const chordRadius = 8;
 const octaveRadiusOffset = 5;
@@ -65,8 +74,8 @@ function resize() {
   const height = Math.min(width, visualizer.clientHeight);
   // Resize the canvas to match the visualizer element's size
   //resizeCanvas(width, height);
-  centerX = width / 2;
-  centerY = height / 2;
+  canvasCenter.x = width / 2;
+  canvasCenter.y = height / 2;
   resizeCanvas(width, height);
 }
 
@@ -151,8 +160,10 @@ function drawFFT() {
     let offset = midi - 57;
     let angle = (offset * 2 * PI) / 12;
     let octave = Math.floor(offset / 12);
-    let x = centerX + (radius + octave * octaveRadiusOffset) * cos(angle);
-    let y = centerY + (radius + octave * octaveRadiusOffset) * sin(angle);
+    let x =
+      canvasCenter.x + (radius + octave * octaveRadiusOffset) * cos(angle);
+    let y =
+      canvasCenter.y + (radius + octave * octaveRadiusOffset) * sin(angle);
     amplitude /= 255;
     amplitude *= amplitude;
     amplitude *= amplitude;
@@ -168,20 +179,20 @@ function drawOctave() {
   noFill();
   //dark gray
   stroke(200);
-  ellipse(centerX, centerY, radius * 2, radius * 2);
+  ellipse(canvasCenter.x, canvasCenter.y, radius * 2, radius * 2);
   //light gray
   stroke(205);
   ellipse(
-    centerX,
-    centerY,
+    canvasCenter.x,
+    canvasCenter.y,
     radius * 2 + octaveRadiusOffset * 2,
     radius * 2 + octaveRadiusOffset * 2
   );
   //light gray
   stroke(210);
   ellipse(
-    centerX,
-    centerY,
+    canvasCenter.x,
+    canvasCenter.y,
     radius * 2 + octaveRadiusOffset * 4,
     radius * 2 + octaveRadiusOffset * 4
   );
@@ -227,7 +238,11 @@ function drawChord(root, chordType) {
   chordName = rootName + chordName;
   fill(0);
   textAlign(LEFT, TOP);
-  text(chordName, Math.max(0, centerX - 200), Math.max(0, centerY - 200));
+  text(
+    chordName,
+    Math.max(0, canvasCenter.x - 200),
+    Math.max(0, canvasCenter.y - 200)
+  );
 }
 
 /**
@@ -244,19 +259,19 @@ function drawChord(root, chordType) {
  * @param {number[]} chordType
  */
 function drawStarChord(root, chordType) {
-  ellipse(centerX, centerY, rootRadius, rootRadius);
+  ellipse(canvasCenter.x, canvasCenter.y, rootRadius, rootRadius);
 
   chordType.forEach((interval, index) => {
     angle = ((root + interval) * 2 * PI) / 12;
-    const x = centerX + radius * cos(angle);
-    const y = centerY + radius * sin(angle);
+    const x = canvasCenter.x + radius * cos(angle);
+    const y = canvasCenter.y + radius * sin(angle);
     // draw a triangle from the center ellipse to the note
     // find two points on the circle at the same angle as the note +/- 1/24 of a circle
     offsetAngle = index ? PI / 24 : PI / 12;
-    const x1 = centerX + (rootRadius / 2) * cos(angle - offsetAngle);
-    const y1 = centerY + (rootRadius / 2) * sin(angle - offsetAngle);
-    const x2 = centerX + (rootRadius / 2) * cos(angle + offsetAngle);
-    const y2 = centerY + (rootRadius / 2) * sin(angle + offsetAngle);
+    const x1 = canvasCenter.x + (rootRadius / 2) * cos(angle - offsetAngle);
+    const y1 = canvasCenter.y + (rootRadius / 2) * sin(angle - offsetAngle);
+    const x2 = canvasCenter.x + (rootRadius / 2) * cos(angle + offsetAngle);
+    const y2 = canvasCenter.y + (rootRadius / 2) * sin(angle + offsetAngle);
     // draw the triangle
     triangle(x1, y1, x, y, x2, y2);
   });
@@ -281,10 +296,10 @@ function drawPolygonChord(root, chordType) {
 
     .forEach((interval, index) => {
       angle = (interval * 2 * PI) / 12;
-      const previousX = centerX + radius * cos(previousAngle);
-      const previousY = centerY + radius * sin(previousAngle);
-      const x = centerX + radius * cos(angle);
-      const y = centerY + radius * sin(angle);
+      const previousX = canvasCenter.x + radius * cos(previousAngle);
+      const previousY = canvasCenter.y + radius * sin(previousAngle);
+      const x = canvasCenter.x + radius * cos(angle);
+      const y = canvasCenter.y + radius * sin(angle);
       previousAngle = angle;
       stroke(0);
       // color through the rainbow based on the index
@@ -293,7 +308,7 @@ function drawPolygonChord(root, chordType) {
       fill((index * 100) / chordType.length, 100, 100);
       // fill yellow and shade based on the interval
       fill(10, 50, 100 - ((2 + interval) % 12) * 6 + 4);
-      triangle(centerX, centerY, previousX, previousY, x, y);
+      triangle(canvasCenter.x, canvasCenter.y, previousX, previousY, x, y);
     });
 }
 
@@ -303,8 +318,8 @@ function drawCircleChord(root, chordType) {
   // Draw the other dots based on the chord type
 
   const rootAngle = (root * 2 * PI) / 12;
-  const rootX = centerX + radius * cos(rootAngle);
-  const rootY = centerY + radius * sin(rootAngle);
+  const rootX = canvasCenter.x + radius * cos(rootAngle);
+  const rootY = canvasCenter.y + radius * sin(rootAngle);
 
   let previousAngle = rootAngle;
   // draw arcs
@@ -316,12 +331,12 @@ function drawCircleChord(root, chordType) {
     const circleRadius =
       radius + Math.floor(interval / 12) * octaveRadiusOffset;
     const offset = +Math.floor(interval / 12) * octaveRadiusOffset;
-    const x = centerX + circleRadius * cos(angle);
-    const y = centerY + circleRadius * sin(angle);
+    const x = canvasCenter.x + circleRadius * cos(angle);
+    const y = canvasCenter.y + circleRadius * sin(angle);
     noFill();
     arc(
-      centerX,
-      centerY,
+      canvasCenter.x,
+      canvasCenter.y,
       2 * (radius + offset),
       2 * (radius + offset),
       rootAngle,
@@ -334,8 +349,8 @@ function drawCircleChord(root, chordType) {
       tickAngle += PI / 6
     ) {
       const tickOffset = octaveRadiusOffset / 2;
-      const tickX = centerX + circleRadius * cos(tickAngle);
-      const tickY = centerY + circleRadius * sin(tickAngle);
+      const tickX = canvasCenter.x + circleRadius * cos(tickAngle);
+      const tickY = canvasCenter.y + circleRadius * sin(tickAngle);
 
       line(
         tickX,
@@ -352,8 +367,8 @@ function drawCircleChord(root, chordType) {
     const nodeRadius = index ? chordRadius : rootRadius;
     const circleRadius =
       radius + Math.floor(interval / 12) * octaveRadiusOffset;
-    const x = centerX + circleRadius * cos(angle);
-    const y = centerY + circleRadius * sin(angle);
+    const x = canvasCenter.x + circleRadius * cos(angle);
+    const y = canvasCenter.y + circleRadius * sin(angle);
     fill(0);
     ellipse(x, y, nodeRadius, nodeRadius);
   });
@@ -370,7 +385,7 @@ function drawCircleChord(root, chordType) {
     (key) => JSON.stringify(chordsMap[key]) === JSON.stringify(chordType)
   );
   chordName = rootName + chordName;
-  text(chordName, centerX, centerY);
+  text(chordName, canvasCenter.x, canvasCenter.y);
 }
 
 const rootMap = {
