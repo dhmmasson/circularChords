@@ -364,29 +364,31 @@ function drawStarChord(root, chordType) {
  * @param {*} chordType
  */
 function drawPolygonChord(root, chordType) {
-  inte = chordType
-    .map((interval) => root + (interval % 12))
-    .sort((a, b) => a - b);
-  previousAngle = (inte[0] * 2 * PI) / 12;
-  inte.push(inte[0]);
-  inte
-    .slice(1)
-
-    .forEach((interval, index) => {
-      angle = (interval * 2 * PI) / 12;
-      const previousX = canvasCenter.x + radius * cos(previousAngle);
-      const previousY = canvasCenter.y + radius * sin(previousAngle);
-      const x = canvasCenter.x + radius * cos(angle);
-      const y = canvasCenter.y + radius * sin(angle);
-      previousAngle = angle;
+  const chord = []
+    .concat(chordType)
+    .map((interval) => noteToAngle(root + (interval % 12)))
+    .sort((a, b) => a - b)
+    .forEach((angle, index, angles) => {
+      const previous = angleToCoordinate(
+        angles[(angles.length + index - 1) % angles.length],
+        radius
+      );
+      const current = angleToCoordinate(angle, radius);
       stroke(0);
       // color through the rainbow based on the index
       // color mode hsb
       colorMode(HSB, 100);
       fill((index * 100) / chordType.length, 100, 100);
-      // fill yellow and shade based on the interval
-      fill(10, 50, 100 - ((2 + interval) % 12) * 6 + 4);
-      triangle(canvasCenter.x, canvasCenter.y, previousX, previousY, x, y);
+      const shade = Math.cos(angle);
+      fill(10, 50, 40 + 30 + 30 * shade);
+      triangle(
+        canvasCenter.x,
+        canvasCenter.y,
+        previous.x,
+        previous.y,
+        current.x,
+        current.y
+      );
     });
 }
 
