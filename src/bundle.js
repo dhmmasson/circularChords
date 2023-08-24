@@ -301,7 +301,7 @@ function drawChord(root, chordType) {
   if (document.getElementById("polygon").checked)
     drawPolygonChord(root, chordType);
   if (document.getElementById("star").checked) drawStarChord(root, chordType);
-  if (document.getElementById("circle").checked)
+  if (document.getElementById("circleShape").checked)
     drawCircleChord(root, chordType);
   // write the name of the chord on the top left
   const rootName = inverseRootMap[root];
