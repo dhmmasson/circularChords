@@ -484,6 +484,7 @@ function drawPolygonChord(root, chordType) {
         current.x,
         current.y
       );
+      colorMode(RGB, 255);
     });
 }
 
