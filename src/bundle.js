@@ -142,8 +142,8 @@ function preload() {
   if (window.location.protocol === "file:") {
     // Dont load sound if we are running from the file system
   } else {
-  sound = loadSound("./OldOak.mp3");
-}
+    sound = loadSound("./OldOak.mp3");
+  }
 }
 
 let part;
